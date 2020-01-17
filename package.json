@@ -1,0 +1,27 @@
+{
+  "name": "share-places-app-backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/F1renDev/share-places-app-backend.git"
+  },
+  "author": "F1renDev",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/F1renDev/share-places-app-backend/issues"
+  },
+  "homepage": "https://github.com/F1renDev/share-places-app-backend#readme",
+  "devDependencies": {
+    "nodemon": "^2.0.2"
+  },
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "express": "^4.17.1"
+  }
+}
