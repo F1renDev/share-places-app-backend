@@ -1,51 +1,38 @@
 const express = require("express");
 const router = express.Router();
+const { check } = require("express-validator");
 
-const TEST_PLACES = [
-  {
-    id: "p1",
-    title: "Empire State Building",
-    description: "One of the most famous skyscrapers in the world",
-    location: {
-      lat: 40.7483405,
-      lng: -73.9858531
-    },
-    address: "20 W 34th St, New York, NY 10001",
-    creator: "u1"
-  }
-];
+const placesControllers = require("../controllers/places-controllers");
 
-router.get("/user/:uid", (req, res, next) => {
-  const userId = req.params.uid;
-  const place = TEST_PLACES.find(p => {
-    return p.creator === userId;
-  });
-  if (!place) {
-    res.status(404).json({
-      message: "Could not find a place for this user id"
-    });
-  } else {
-    res.json({
-      place: place
-    });
-  }
-});
+router.get("/:pid", placesControllers.getPlaceById);
 
-router.get("/:pid", (req, res, next) => {
-  const placeId = req.params.pid;
-  const place = TEST_PLACES.find(p => {
-    return p.id === placeId;
-  });
+router.get("/user/:uid", placesControllers.getPlacesByUserId);
 
-  if (!place) {
-    res.status(404).json({
-      message: "Could not find a place for this id"
-    });
-  } else {
-    res.json({
-      place: place
-    });
-  }
-});
+router.post(
+  "/",
+  [
+    check("title")
+      .not()
+      .isEmpty(),
+    check("description").isLength({ min: 5 }),
+    check("address")
+      .not()
+      .isEmpty()
+  ],
+  placesControllers.createPlace
+);
+
+router.patch(
+  "/:pid",
+  [
+    check("title")
+      .not()
+      .isEmpty(),
+    check("description").isLength({ min: 5 })
+  ],
+  placesControllers.updatePlace
+);
+
+router.delete("/:pid", placesControllers.deletePlace);
 
 module.exports = router;
