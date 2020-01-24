@@ -3,6 +3,7 @@ const { validationResult } = require("express-validator");
 
 const HttpError = require("../models/http-error");
 const getCoordsFromAddress = require("../utility/locations");
+const Place = require("../models/place");
 
 let TEST_PLACES = [
   {
@@ -18,30 +19,52 @@ let TEST_PLACES = [
   }
 ];
 
-const getPlaceById = (req, res, next) => {
+const getPlaceById = async (req, res, next) => {
   const placeId = req.params.pid;
-  const place = TEST_PLACES.find(p => {
-    return p.id === placeId;
-  });
-
-  if (!place) {
-    throw new HttpError("Could not find a place for provided id", 404);
+  let place;
+  try {
+    place = await Place.findById(placeId);
+  } catch (err) {
+    // This error goes off if there is somethig wrong woth the request
+    const error = new HttpError("Could not find a place", 500);
+    return next(error);
   }
 
-  res.json({ place: place });
+  if (!place) {
+    //This error goes off if there is no such place with given id
+    const error = new HttpError("Could not find a place for provided id", 404);
+    return next(error);
+  }
+
+  // Turning the mongoose object into a normal JavaScript object
+  // and { getters: true } => adding the id property without and
+  // underscore (the _id will still be there, we just add a new prop)
+  res.json({ place: place.toObject({ getters: true }) });
 };
 
-const getPlacesByUserId = (req, res, next) => {
+const getPlacesByUserId = async (req, res, next) => {
   const userId = req.params.uid;
-  const places = TEST_PLACES.filter(p => {
-    return p.creator === userId;
-  });
+
+  let places;
+  try {
+    places = await Place.find({ creator: userId });
+  } catch (err) {
+    // This error goes off if there is somethig wrong woth the request in general
+    const error = new HttpError(
+      "Fetching places faild, please try again later",
+      500
+    );
+    return next(error);
+  }
+
   if (!places || places.length === 0) {
     return next(
       new HttpError("Could not find places for provided user id", 404)
     );
   } else {
-    res.json({ places: places });
+    res.json({
+      places: places.map(place => place.toObject({ getters: true }))
+    });
   }
 };
 
@@ -56,16 +79,22 @@ const createPlace = async (req, res, next) => {
 
   let coordinates = await getCoordsFromAddress(address);
 
-  const createdPlace = {
-    id: uuid(),
+  const createdPlace = new Place({
     title: title,
     description: description,
-    location: coordinates,
     address: address,
+    location: coordinates,
+    image:
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bf/The_lonely_skyscraper_%28Unsplash%29.jpg/1200px-The_lonely_skyscraper_%28Unsplash%29.jpg",
     creator: creator
-  };
+  });
 
-  TEST_PLACES.push(createdPlace);
+  try {
+    await createdPlace.save();
+  } catch (err) {
+    const error = new HttpError("Creating place failed, try again", 500);
+    return next(error);
+  }
 
   res.status(201).json({ place: createdPlace });
 };

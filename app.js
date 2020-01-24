@@ -1,5 +1,6 @@
 const express = require("express");
 const bodyParser = require("body-parser");
+const mongoose = require("mongoose");
 
 const placesRoutes = require("./routes/places-routes");
 const usersRoutes = require("./routes/users-routes");
@@ -31,4 +32,12 @@ app.use((error, req, res, next) => {
   });
 });
 
-app.listen(5000);
+// If the connection to the db was not successfull - the server won't start
+mongoose
+  .connect(
+    "mongodb+srv://F1ren:qwe123@cluster0-lhqoo.mongodb.net/places?retryWrites=true&w=majority"
+  )
+  .then(() => {
+    app.listen(5000);
+  })
+  .catch(err => console.log(err));
