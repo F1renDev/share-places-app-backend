@@ -44,21 +44,21 @@ const getPlacesByUserId = async (req, res, next) => {
     return next(error);
   }
 
-  if (!userWithPlaces || userWithPlaces.length === 0) {
+  if (!userWithPlaces || userWithPlaces.places.length === 0) {
     return next(
       new HttpError("Could not find places for provided user id", 404)
     );
-  } else {
-    res.json({
-      places: userWithPlaces.places.map(place =>
-        place.toObject({ getters: true })
-      )
-    });
   }
+
+  res.json({
+    places: userWithPlaces.places.map(place =>
+      place.toObject({ getters: true })
+    )
+  });
 };
 
-// Simulating the delay of getting some data from the google maps api
 const createPlace = async (req, res, next) => {
+  //Third-party package is validation the input
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return next(new HttpError("Invalid inputs, please check your data", 422));
@@ -170,9 +170,9 @@ const deletePlace = async (req, res, next) => {
 
   try {
     const session = await mongoose.startSession();
-    session.startTransaction();
+    await session.startTransaction();
     await place.remove({ session: session });
-    place.creator.places.pull(place);
+    await place.creator.places.pull(place);
     await place.creator.save({ session: session });
     await session.commitTransaction();
   } catch (err) {
