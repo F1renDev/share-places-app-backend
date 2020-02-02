@@ -1,3 +1,6 @@
+const fs = require("fs");
+const path = require("path");
+
 const express = require("express");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
@@ -9,6 +12,9 @@ const HttpError = require("./models/http-error");
 const app = express();
 
 app.use(bodyParser.json());
+
+//Middleware to return files only from the given folder
+app.use("/uploads/images", express.static(path.join('uploads', 'images')));
 
 app.use(async (req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -32,6 +38,15 @@ app.use((req, res, next) => {
 // if used with 4 arguments and if any previous middleware yields an error
 // this function will be treated as a special error handler
 app.use((error, req, res, next) => {
+  //If there was some error (this is error handling middleware)
+  //the uploaded file is going to be delete
+
+  //Multer package adds a new property to the request object - 'file'
+  if (req.file) {
+    fs.unlink(req.file.path, err => {
+      console.log(err);
+    });
+  }
   //not sending a response if it was somehow already sent before
   if (res.headerSent) {
     return next(error);

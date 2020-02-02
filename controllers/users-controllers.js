@@ -43,8 +43,7 @@ const signup = async (req, res, next) => {
   const createdUser = new User({
     name: name,
     email: email,
-    image:
-      "https://cdn3.iconfinder.com/data/icons/user-icon-3-1/100/user_3_Artboard_1_copy_2-512.png",
+    image: req.file.path,
     password: password,
     places: []
   });

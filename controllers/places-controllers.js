@@ -1,3 +1,5 @@
+const fs = require("fs");
+
 const { validationResult } = require("express-validator");
 
 const HttpError = require("../models/http-error");
@@ -73,8 +75,7 @@ const createPlace = async (req, res, next) => {
     description: description,
     address: address,
     location: coordinates,
-    image:
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bf/The_lonely_skyscraper_%28Unsplash%29.jpg/1200px-The_lonely_skyscraper_%28Unsplash%29.jpg",
+    image: req.file.path,
     creator: creator
   });
 
@@ -168,6 +169,8 @@ const deletePlace = async (req, res, next) => {
     return next(error);
   }
 
+  const imagePath = place.image;
+
   try {
     const session = await mongoose.startSession();
     await session.startTransaction();
@@ -182,6 +185,10 @@ const deletePlace = async (req, res, next) => {
     );
     return next(error);
   }
+
+  fs.unlink(imagePath, err => {
+    console.log(err);
+  });
 
   res.status(200).json({ message: "Deleted place" });
 };
