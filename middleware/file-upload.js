@@ -14,10 +14,12 @@ const fileUpload = multer({
   //Instruction to how data must be stored
   storage: multer.diskStorage({
     destination: (req, file, callback) => {
+      //Setting a path where the file will be stored
       callback(null, "uploads/images");
     },
     filename: (req, file, callback) => {
       const extension = MIME_TYPE_MAP[file.mimetype];
+      //Generating a name for the uploaded file
       callback(null, uuid() + "." + extension);
     }
   }),

@@ -1,0 +1,23 @@
+const jwt = require("jsonwebtoken");
+
+const HttpError = require("../models/http-error");
+
+module.exports = (req, res, next) => {
+  //Extracting token from the headers sent from the frontend
+  try {
+    //Token comes looking like this: Authorization: "Bearer TOKEN"
+    const token = req.headers.authorization.split(" ")[1];
+    if (!token) {
+      throw new Error("Authorization failed!");
+    }
+    //If the token is there, it is checked for being the correct one
+    const decodedToken = jwt.verify(token, "super_secret_dont_share");
+    //Dynamically adding data (the userId) to the request
+    req.userData = { userId: decodedToken.userId };
+    //At this point the user is authenticated and the request can continue it's journey
+    next();
+  } catch (err) {
+    const error = new HttpError("Authentication failed", 401);
+    return next(error);
+  }
+};
