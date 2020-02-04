@@ -17,7 +17,7 @@ module.exports = (req, res, next) => {
       throw new Error("Authorization failed!");
     }
     //If the token is there, it is checked for being the correct one
-    const decodedToken = jwt.verify(token, "super_secret_dont_share");
+    const decodedToken = jwt.verify(token, process.env.JWT_KEY);
     //Dynamically adding data (the userId) to the request
     req.userData = { userId: decodedToken.userId };
     //At this point the user is authenticated and the request can continue it's journey

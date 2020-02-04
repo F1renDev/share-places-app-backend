@@ -14,7 +14,7 @@ const app = express();
 app.use(bodyParser.json());
 
 //Middleware to return files only from the given folder
-app.use("/uploads/images", express.static(path.join('uploads', 'images')));
+app.use("/uploads/images", express.static(path.join("uploads", "images")));
 
 app.use(async (req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -60,7 +60,7 @@ app.use((error, req, res, next) => {
 // If the connection to the db was not successfull - the server won't start
 mongoose
   .connect(
-    "mongodb+srv://F1ren:qwe123@cluster0-lhqoo.mongodb.net/mern?retryWrites=true&w=majority"
+    `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0-lhqoo.mongodb.net/${process.env.DB_NAME}?retryWrites=true&w=majority`
   )
   .then(() => {
     app.listen(5000);
