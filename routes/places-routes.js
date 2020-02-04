@@ -10,7 +10,6 @@ router.get("/:pid", placesControllers.getPlaceById);
 
 router.get("/user/:uid", placesControllers.getPlacesByUserId);
 
-//If there is no valid token, the request stops at thos middleware
 router.use(checkAuth);
 
 router.post(

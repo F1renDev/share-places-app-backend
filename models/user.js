@@ -11,7 +11,6 @@ const userSchema = new Schema({
   places: [{ type: mongoose.Types.ObjectId, required: true, ref: "Place" }]
 });
 
-// Checking if the email already exists with the mongoose-unique-validator library
 userSchema.plugin(uniqueValidator);
 
 module.exports = mongoose.model("User", userSchema);

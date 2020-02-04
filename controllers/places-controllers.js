@@ -14,20 +14,15 @@ const getPlaceById = async (req, res, next) => {
   try {
     place = await Place.findById(placeId);
   } catch (err) {
-    // This error goes off if there is somethig wrong woth the request
     const error = new HttpError("Could not find a place", 500);
     return next(error);
   }
 
   if (!place) {
-    //This error goes off if there is no such place with given id
     const error = new HttpError("Could not find a place for provided id", 404);
     return next(error);
   }
 
-  // Turning the mongoose object into a normal JavaScript object
-  // and { getters: true } => adding the id property without and
-  // underscore (the _id will still be there, we just add a new prop)
   res.json({ place: place.toObject({ getters: true }) });
 };
 
@@ -38,7 +33,6 @@ const getPlacesByUserId = async (req, res, next) => {
   try {
     userWithPlaces = await User.findById(userId).populate("places");
   } catch (err) {
-    // This error goes off if there is somethig wrong woth the request in general
     const error = new HttpError(
       "Fetching places faild, please try again later",
       500
@@ -60,7 +54,6 @@ const getPlacesByUserId = async (req, res, next) => {
 };
 
 const createPlace = async (req, res, next) => {
-  //Third-party package is validation the input
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return next(new HttpError("Invalid inputs, please check your data", 422));
@@ -80,7 +73,6 @@ const createPlace = async (req, res, next) => {
   });
 
   let user;
-  // Checking if the id of the user already exists
   try {
     user = await User.findById(req.userData.userId);
   } catch (err) {
@@ -94,10 +86,6 @@ const createPlace = async (req, res, next) => {
   }
 
   try {
-    // Starting a new session before creating a new place
-    // And starting a transaction to be sure that only if all conditions are met
-    // the changes go to the db
-
     const session = await mongoose.startSession();
     session.startTransaction();
     //Storing the place
@@ -134,7 +122,6 @@ const updatePlace = async (req, res, next) => {
     return next(error);
   }
 
-  //If the values arent equal than this user did not create this place
   if (place.creator.toString() !== req.userData.userId) {
     const error = new HttpError("You are not allowed to edit this place", 401);
     return next(error);
@@ -175,7 +162,6 @@ const deletePlace = async (req, res, next) => {
     return next(error);
   }
 
-  //If the values arent equal than this user did not create this place
   if (place.creator.id !== req.userData.userId) {
     const error = new HttpError(
       "You are not allowed to delete this place",

@@ -8,7 +8,6 @@ const HttpError = require("../models/http-error");
 const getUsers = async (req, res, next) => {
   let users;
   try {
-    // Excluding the password
     users = await User.find({}, "-password");
   } catch (err) {
     const error = new HttpError("Fetching users failed, try again later", 500);
@@ -68,7 +67,6 @@ const signup = async (req, res, next) => {
     return next(error);
   }
 
-  //Generating token for a created user
   let token;
   try {
     token = jwt.sign(
@@ -104,10 +102,8 @@ const login = async (req, res, next) => {
 
   let isValidPassword = false;
   try {
-    //Returns either true or false
     isValidPassword = await bcrypt.compare(password, existingUser.password);
   } catch (err) {
-    //This error will not be thrown if invlid credentials were entered, it's a server-side error
     const error = new HttpError(
       "Could not log you in, please check your credentials and try again",
       500
@@ -120,7 +116,6 @@ const login = async (req, res, next) => {
     return next(error);
   }
 
-  //Generating token for a logged in user
   let token;
   try {
     token = jwt.sign(
